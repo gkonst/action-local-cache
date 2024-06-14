@@ -8,13 +8,17 @@ const CWD = process.cwd()
 export const STRATEGIES = ['copy-immutable', 'copy', 'move'] as const
 export type Strategy = typeof STRATEGIES[number]
 
-type Vars = {
+export const MODES = ['cache', 'clean'] as const
+export type Mode = typeof MODES[number]
+
+export type Vars = {
   cacheDir: string
   cachePath: string
   options: {
     key: string
     path: string,
-    strategy: Strategy
+    strategy: Strategy,
+    mode: Mode
   }
   targetDir: string
   targetPath: string
@@ -33,6 +37,7 @@ export const getVars = (): Vars => {
     key: core.getInput('key') || 'no-key',
     path: core.getInput('path'),
     strategy: core.getInput('strategy') as Strategy,
+    mode: core.getInput('mode') as Mode
   }
 
   if (!options.path) {
@@ -41,6 +46,10 @@ export const getVars = (): Vars => {
 
   if (!Object.values(STRATEGIES).includes(options.strategy)) {
     throw new TypeError(`Unknown strategy ${options.strategy}`)
+  }
+
+  if (!Object.values(MODES).includes(options.mode)) {
+    throw new TypeError(`Unknown mode ${options.mode}`)
   }
 
   const cacheDir = path.join(RUNNER_TOOL_CACHE, GITHUB_REPOSITORY, options.key)
